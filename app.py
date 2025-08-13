@@ -2,24 +2,23 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Page title
-st.title("Test Deployment - Virtual CI Specialist")
+st.title("Virtual CI Specialist - Excel Test")
 
-# Dummy Data
-data = {
-    "Date": ["2025-08-10", "2025-08-11", "2025-08-12"],
-    "Department": ["Maintenance", "Production", "Quality"],
-    "Loss Minutes": [120, 90, 60]
-}
+uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
 
-df = pd.DataFrame(data)
+if uploaded_file:
+    df = pd.read_excel(uploaded_file)
+    st.subheader("Uploaded Data")
+    st.dataframe(df)
 
-st.subheader("Sample Data")
-st.dataframe(df)
+    if "Loss Minutes" in df.columns and "Department" in df.columns:
+        fig, ax = plt.subplots()
+        df.groupby("Department")["Loss Minutes"].sum().plot(kind="bar", ax=ax)
+        plt.ylabel("Loss Minutes")
+        plt.title("Loss by Department")
+        st.pyplot(fig)
+    else:
+        st.error("Excel must have 'Department' and 'Loss Minutes' columns.")
 
-# Simple Chart
-fig, ax = plt.subplots()
-df.plot(kind="bar", x="Department", y="Loss Minutes", ax=ax)
-st.pyplot(fig)
-
-st.success("✅ This minimal app is running fine!")
+else:
+    st.info("Please upload an Excel file to see results.")
